@@ -104,16 +104,19 @@ main()
 #endif
 
   while(1) {
-    if(!try_this_move) {
-      while(have_message <= message_checked) sleep(1);
-    }
+    /* if(!try_this_move) {
+    /   while(have_message <= message_checked) sleep(1);
+    / }
 
-    if(have_message > message_checked) check_message();
+    / if(have_message > message_checked) check_message();
 
-    printf("opponent move: %s, %d/%d [sec/move]\n",
-	   command, remaining_time, remaining_moves);
+    / printf("opponent move: %s, %d/%d [sec/move]\n",
+	  / command, remaining_time, remaining_moves);
 
-    if(!strcmp("white",command)) {
+    / !strcmp("white",command)
+    */
+
+    if(1) {
       init_tools();
       set_board();
 

@@ -1,41 +1,45 @@
-CFLAGS=-O -g
+CFLAGS=-O -std=c89
 
-OBJS = 	generate.o \
-	tools.o \
-	loop.o \
-	move.o \
-	eval.o \
-	chess.o \
-	actions.o \
-	legal.o \
-	strike.o
+OBJS = 	bin/generate.o \
+	bin/tools.o \
+	bin/loop.o \
+	bin/move.o \
+	bin/eval.o \
+	bin/chess.o \
+	bin/actions.o \
+	bin/legal.o \
+	bin/strike.o
 
 chess : $(OBJS)
 	cc -o $@ $^
 
-generate.o : generate.c actions.h chess.h
-	cc -c $(CFLAGS) $<
+bin/generate.o : src/generate.c src/actions.h src/chess.h
+	cc -c $(CFLAGS) $< -o $@
 
-tools.o : tools.c chess.h
-	cc -c $(CFLAGS) $<
+bin/tools.o : src/tools.c src/chess.h
+	cc -c $(CFLAGS) $< -o $@
 
-loop.o : loop.c chess.h
-	cc -c $(CFLAGS) $<
+bin/loop.o : src/loop.c src/chess.h
+	cc -c $(CFLAGS) $< -o $@
 
-move.o : move.c chess.h hash.h
-	cc -c $(CFLAGS) $<
+bin/move.o : src/move.c src/chess.h src/hash.h
+	cc -c $(CFLAGS) $< -o $@
 
-eval.o : eval.c actions.h chess.h
-	cc -c $(CFLAGS) $<
+bin/eval.o : src/eval.c src/actions.h src/chess.h
+	cc -c $(CFLAGS) $< -o $@
 
-actions.o : actions.c actions.h chess.h
-	cc -c $(CFLAGS) $<
+bin/actions.o : src/actions.c src/actions.h src/chess.h
+	cc -c $(CFLAGS) $< -o $@
 
-legal.o : legal.c actions.h chess.h
-	cc -c $(CFLAGS) $<
+bin/legal.o : src/legal.c src/actions.h src/chess.h
+	cc -c $(CFLAGS) $< -o $@
 
-chess.o : chess.c chess.h
-	cc -c $(CFLAGS) $<
+bin/chess.o : src/chess.c src/chess.h
+	cc -c $(CFLAGS) $< -o $@
 
-strike.o : strike.c chess.h
-	cc -c $(CFLAGS) $<
+bin/strike.o : src/strike.c src/chess.h
+	cc -c $(CFLAGS) $< -o $@
+
+clean :
+	rm bin/*.o
+	rm chess
