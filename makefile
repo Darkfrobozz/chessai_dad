@@ -1,4 +1,4 @@
-CFLAGS=-O
+CFLAGS=-O -g
 
 OBJS = 	generate.o \
 	tools.o \
