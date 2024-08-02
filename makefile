@@ -1,4 +1,4 @@
-CFLAGS=-O -std=c89
+CFLAGS=-g -std=c89
 
 OBJS = 	bin/generate.o \
 	bin/tools.o \

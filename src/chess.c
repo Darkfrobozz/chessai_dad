@@ -116,7 +116,7 @@ main()
     / !strcmp("white",command)
     */
 
-    if(1) {
+    if(0) {
       init_tools();
       set_board();
 
@@ -124,7 +124,7 @@ main()
       opponet_move = 0;
       try_this_move = 0;
 
-    } else if(!strcmp("black",command)) {
+    } else if(1) {
       init_tools();
       set_board();
 
