@@ -74,6 +74,7 @@ int chess_client_init() {
     return 1;
 }
 
+#ifdef TEST
 int main(int argc, char const* argv[])
 {
     int valread;
@@ -104,3 +105,4 @@ int main(int argc, char const* argv[])
     close(client_fd);
     return 0;
 }
+#endif

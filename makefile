@@ -1,4 +1,4 @@
-CFLAGS=-g -std=c89
+CFLAGS=-g -std=c99
 
 OBJS = 	bin/generate.o \
 	bin/tools.o \
@@ -8,7 +8,8 @@ OBJS = 	bin/generate.o \
 	bin/chess.o \
 	bin/actions.o \
 	bin/legal.o \
-	bin/strike.o
+	bin/strike.o \
+	bin/client.o
 
 chess : $(OBJS)
 	cc -o $@ $^
@@ -34,12 +35,15 @@ bin/actions.o : src/actions.c src/actions.h src/chess.h
 bin/legal.o : src/legal.c src/actions.h src/chess.h
 	cc -c $(CFLAGS) $< -o $@
 
-bin/chess.o : src/chess.c src/chess.h
+bin/chess.o : src/chess.c src/chess.h src/client.h
 	cc -c $(CFLAGS) $< -o $@
 
 bin/strike.o : src/strike.c src/chess.h
 	cc -c $(CFLAGS) $< -o $@
 
+bin/client.o : src/client.c src/client.h
+	cc -c $(CFLAGS) $< -o $@
+	
 clean :
 	rm bin/*.o
 	rm chess
