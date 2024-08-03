@@ -6,6 +6,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 #include "chess.h"
 #include "client.h"
@@ -25,6 +26,45 @@ long int number_of_evals;
 
 long int have_message;
 long int message_checked;
+
+
+// void timer_handler(int signum) {
+//   static int count = 0;
+//   printf("Timer signal received %d times\n", ++count);
+//   if (client_listen() > 0) {
+//     check_message();
+//   }
+// }
+
+// void setup_signal_handler() {
+//     struct sigaction sa;
+//     sa.sa_handler = timer_handler;
+//     sa.sa_flags = 0; // or SA_RESTART to automatically restart certain interrupted functions
+//     sigemptyset(&sa.sa_mask);
+
+//     if (sigaction(SIGALRM, &sa, NULL) == -1) {
+//         perror("sigaction");
+//         _exit(1);
+//     }
+// }
+
+// void start_timer() {
+//     struct itimerval timer;
+
+//     // Configure the timer to expire after 2 seconds
+//     timer.it_value.tv_sec = 2;
+//     timer.it_value.tv_usec = 0;
+
+//     // Configure the timer to reset to 2 seconds after it expires
+//     // timer.it_interval.tv_sec = 2;
+//     // timer.it_interval.tv_usec = 0;
+
+//     // Start the timer
+//     if (setitimer(ITIMER_REAL, &timer, NULL) == -1) {
+//         perror("setitimer");
+//         _exit(1);
+//     }
+// }
 
 static void update_func()
 {
@@ -102,6 +142,7 @@ int main(int n, char *v[])
   init_moves();
 
 #ifdef ACTION
+  setup_timer();
   chess_client_init();
 #else 
   signal(SIGINT,ctrl_c);
@@ -123,7 +164,12 @@ int main(int n, char *v[])
     }
 
     // Checking message?
-    if(have_message > message_checked) check_message();
+    printf("Checks if I got a message");
+    #ifdef ACTION
+      if(client_listen() > 0) check_message();
+    #else
+      if(have_message > message_checked) check_message();
+    #endif
 
     printf("opponent move: %s, %ld/%ld [sec/move]\n",
 	   command, remaining_time, remaining_moves);
@@ -240,7 +286,8 @@ int main(int n, char *v[])
 
     if(my_move) {
 #ifdef ACTION
-      chess_client_move(convert_binary_move_to_ascii(my_move));
+      client_send_move(convert_binary_move_to_ascii(my_move));
+      start_timer();
 #else
       printf("Send move %s\n",convert_binary_move_to_ascii(my_move));
 #endif
@@ -266,7 +313,7 @@ int main(int n, char *v[])
 
     } else {
 #ifdef ACTION
-      chess_client_move("nomove");
+      client_send_move("nomove");
 #else
       printf("Send move nomove\n");
 #endif
