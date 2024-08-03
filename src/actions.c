@@ -14,13 +14,13 @@
 #define CMD_RAY_SLOT  0
 #define CMD_MOVE_SLOT 1
 
-int *actions[2];
-int *spot_action[2][8*8];
+long int *actions[2];
+long int *spot_action[2][8*8];
 
-static int man_board_status[8*8][WHITE_VIRGIN_KING+MAN_OFSET+1];
-static int backup_man_board_status[8*8][WHITE_VIRGIN_KING+MAN_OFSET+1];
-static int *ray_board[8*8][8];
-static int white_ray_command[8][2] = {
+static long int man_board_status[8*8][WHITE_VIRGIN_KING+MAN_OFSET+1];
+static long int backup_man_board_status[8*8][WHITE_VIRGIN_KING+MAN_OFSET+1];
+static long int *ray_board[8*8][8];
+static long int white_ray_command[8][2] = {
   {OP_WHITE_R_RAY,OP_WHITE_MOVE}, /* 0 */
   {OP_WHITE_P_RAY,OP_WHITE_MOVE}, /* 1 */
   {OP_WHITE_R_RAY,OP_WHITE_MOVE}, /* 2 */
@@ -30,7 +30,7 @@ static int white_ray_command[8][2] = {
   {OP_WHITE_R_RAY,OP_WHITE_MOVE}, /* 6 */
   {OP_WHITE_B_RAY,OP_WHITE_MOVE}  /* 7 */
 };
-static int black_ray_command[8][2] = {
+static long int black_ray_command[8][2] = {
   {OP_BLACK_R_RAY,OP_BLACK_MOVE}, /* 0 */
   {OP_BLACK_B_RAY,OP_BLACK_MOVE}, /* 1 */
   {OP_BLACK_R_RAY,OP_BLACK_MOVE}, /* 2 */
@@ -48,21 +48,21 @@ static int black_ray_command[8][2] = {
 }
 
 typedef struct DEPOSIT {
-  int *place_p;
+  long int *place_p;
 #ifdef STANDALONE
-  int label;
+  long int label;
 #endif
   struct DEPOSIT *next_p;
 } DEPOSIT;
 
 static void deposit_address(
   DEPOSIT **dep_pp,
-  int *addr_p
+  long int *addr_p
 )
 {
   if(*dep_pp) {
     deposit_address(&(*dep_pp)->next_p,addr_p);
-    if((*dep_pp)->place_p) *(int **) (*dep_pp)->place_p = addr_p;
+    if((*dep_pp)->place_p) *(long int **) (*dep_pp)->place_p = addr_p;
     free(*dep_pp);
     *dep_pp = NULL;
   }
@@ -70,7 +70,7 @@ static void deposit_address(
 
 static void defer_address(
   DEPOSIT **dep_pp,
-  int *place_p
+  long int *place_p
 )
 {
   DEPOSIT *dep_p = (DEPOSIT *) malloc(sizeof(DEPOSIT));
@@ -96,11 +96,11 @@ static void join_addresses(
 
 static void clear_all_above(
   DEPOSIT **dep_pp,
-  int *place_p
+  long int *place_p
 )
 {
   if(*dep_pp) {
-    if((unsigned int) (*dep_pp)->place_p >= (unsigned int) place_p) {
+    if((unsigned long int) (*dep_pp)->place_p >= (unsigned long int) place_p) {
       DEPOSIT *next_p = (*dep_pp)->next_p;
 
       free(*dep_pp);
@@ -112,18 +112,18 @@ static void clear_all_above(
   }
 }
 
-static int single_move(
-  int op,
-  int dr,
-  int dc,
-  int row,
-  int column,
-  int *head_p
+static long int single_move(
+  long int op,
+  long int dr,
+  long int dc,
+  long int row,
+  long int column,
+  long int *head_p
 )
 {
-  int count = 0;
-  int r = row + dr;
-  int c = column + dc;
+  long int count = 0;
+  long int r = row + dr;
+  long int c = column + dc;
 
   if(0 <= r && r <= 7 && 0 <= c && c <= 7) {
     S(op);
@@ -136,7 +136,7 @@ static int single_move(
 
 #define SINGLE_MOVE(OP,DR,DC) 			   \
 { 						   \
-  int d = single_move(OP,DR,DC,row,column,head_p); \
+  long int d = single_move(OP,DR,DC,row,column,head_p); \
   count += d; 					   \
   if(head_p) head_p += d; 			   \
 }
@@ -149,21 +149,21 @@ static int single_move(
      6
 */
 
-static int ray(
-  int start,
-  int ray_command[8][2],
+static long int ray(
+  long int start,
+  long int ray_command[8][2],
   DEPOSIT **dep_pp,
-  int *head_p,
-  int row,
-  int column
+  long int *head_p,
+  long int row,
+  long int column
 )
 {
-  int count = 0;
+  long int count = 0;
   DEPOSIT *short_coalease_p = NULL;
-  int i;
+  long int i;
 
   for(i = start; i < 8; i += 2) {
-    int *vp = ray_board[Q(row,column)][i];
+    long int *vp = ray_board[Q(row,column)][i];
 
     if(vp[0] && !vp[1]) {
       deposit_address(&short_coalease_p,head_p);
@@ -172,7 +172,7 @@ static int ray(
       S(GET_TO(vp[0]));
       S(vp[0]);
     } else if(vp[0]) {
-      int *pp;
+      long int *pp;
 
       deposit_address(&short_coalease_p,head_p);
 
@@ -197,18 +197,18 @@ static int ray(
 
 #define RAY(B,RAY_COMMAND,DEP) 		            \
 { 						    \
-  int d = ray(B,RAY_COMMAND,DEP,head_p,row,column); \
+  long int d = ray(B,RAY_COMMAND,DEP,head_p,row,column); \
   count += d; 					    \
   if(head_p) head_p += d; 			    \
 }
 
 static void change_status(
-  int place,
-  int man,
-  int status
+  long int place,
+  long int man,
+  long int status
 )
 {
-  int op,mi,in_fact_empty;
+  long int op,mi,in_fact_empty;
 
   if(status == IS_THERE) {
     for(mi = BLACK_VIRGIN_KING; mi <= WHITE_VIRGIN_KING; mi++) {
@@ -250,10 +250,10 @@ static void change_status(
 }
 
 static void place_man_at(
-  int row,
-  int column,
-  int man,
-  int status
+  long int row,
+  long int column,
+  long int man,
+  long int status
 )
 {
   if(0 <= row && row <= 7 && 0 <= column && column <= 7) {
@@ -308,7 +308,7 @@ static void place_man_at(
 
 static void make_status_uncertain()
 {
-  int row,column,mi;
+  long int row,column,mi;
 
   for(row = 0; row < 8; row++) {
     for(column = 0; column < 8; column++) {
@@ -361,7 +361,7 @@ static void make_status_uncertain()
 
 static void make_status_save()
 {
-  int place,mi;
+  long int place,mi;
   for(place = 0; place < 8*8; place++) {
     for(mi = BLACK_VIRGIN_KING; mi <= WHITE_VIRGIN_KING; mi++) {
       backup_man_board_status[place][mi+MAN_OFSET]
@@ -372,7 +372,7 @@ static void make_status_save()
 
 static void make_status_restore()
 {
-  int place,mi;
+  long int place,mi;
   for(place = 0; place < 8*8; place++) {
     for(mi = BLACK_VIRGIN_KING; mi <= WHITE_VIRGIN_KING; mi++) {
       man_board_status[place][mi+MAN_OFSET]
@@ -381,15 +381,15 @@ static void make_status_restore()
   }
 }
 
-static int add_is_not_man(
-  int upd,
-  int place,
-  int man,
+static long int add_is_not_man(
+  long int upd,
+  long int place,
+  long int man,
   DEPOSIT **dep_pp,
-  int *head_p
+  long int *head_p
 )
 {
-  int count = 0;
+  long int count = 0;
 
   switch(man_board_status[place][man+MAN_OFSET]) {
   case IS_UNCERTAIN:
@@ -416,20 +416,20 @@ static int add_is_not_man(
 
 #define ADD_IS_NOT_MAN(UPD,PLACE,MAN,DEP_PP) 	       \
 { 						       \
-  int d = add_is_not_man(UPD,PLACE,MAN,DEP_PP,head_p); \
+  long int d = add_is_not_man(UPD,PLACE,MAN,DEP_PP,head_p); \
   count += d; 					       \
   if(head_p) head_p += d; 			       \
 }
 
-static int add_is_man(
-  int upd,
-  int place,
-  int man,
+static long int add_is_man(
+  long int upd,
+  long int place,
+  long int man,
   DEPOSIT **dep_pp,
-  int *head_p
+  long int *head_p
 )
 {
-  int count = 0;
+  long int count = 0;
 
   switch(man_board_status[place][man+MAN_OFSET]) {
   case IS_UNCERTAIN:
@@ -456,21 +456,21 @@ static int add_is_man(
 
 #define ADD_IS_MAN(UPD,PLACE,MAN,DEP_PP) 	   \
 { 						   \
-  int d = add_is_man(UPD,PLACE,MAN,DEP_PP,head_p); \
+  long int d = add_is_man(UPD,PLACE,MAN,DEP_PP,head_p); \
   count += d; 					   \
   if(head_p) head_p += d; 			   \
 }
 
-static int add_is_not_these_men(
-  int upd,
-  int place,
-  int man1,
-  int man2,
+static long int add_is_not_these_men(
+  long int upd,
+  long int place,
+  long int man1,
+  long int man2,
   DEPOSIT **dep_pp,
-  int *head_p
+  long int *head_p
 )
 {
-  int count = 0;
+  long int count = 0;
 
   switch(man_board_status[place][man1+MAN_OFSET]) {
   case IS_UNCERTAIN:
@@ -512,22 +512,22 @@ static int add_is_not_these_men(
 
 #define ADD_IS_NOT_THESE_MEN(UPD,PLACE,MAN1,MAN2,DEP_PP) 	   \
 { 								   \
-  int d = add_is_not_these_men(UPD,PLACE,MAN1,MAN2,DEP_PP,head_p); \
+  long int d = add_is_not_these_men(UPD,PLACE,MAN1,MAN2,DEP_PP,head_p); \
   count += d; 							   \
   if(head_p) head_p += d; 					   \
 }
 
-static int add_is_not_man_but_empty(
-  int upd,
-  int *done_p,
-  int place,
-  int man,
+static long int add_is_not_man_but_empty(
+  long int upd,
+  long int *done_p,
+  long int place,
+  long int man,
   DEPOSIT **d1_pp,
   DEPOSIT **d2_pp,
-  int *head_p
+  long int *head_p
 )
 {
-  int count = 0;
+  long int count = 0;
 
   if(!*done_p) {
     if(man_board_status[place][EMPTY+MAN_OFSET] == IS_THERE) {
@@ -560,23 +560,23 @@ static int add_is_not_man_but_empty(
 
 #define ADD_IS_NOT_MAN_BUT_EMPTY(UPD,DP,PLACE,MAN,D1_PP,D2_PP) 		 \
 { 									 \
-  int d = add_is_not_man_but_empty(UPD,DP,PLACE,MAN,D1_PP,D2_PP,head_p); \
+  long int d = add_is_not_man_but_empty(UPD,DP,PLACE,MAN,D1_PP,D2_PP,head_p); \
   count += d; 								 \
   if(head_p) head_p += d; 						 \
 }
 
-static int add_is_not_these_men_but_empty(
-  int upd,
-  int *done_p,
-  int place,
-  int man1,
-  int man2,
+static long int add_is_not_these_men_but_empty(
+  long int upd,
+  long int *done_p,
+  long int place,
+  long int man1,
+  long int man2,
   DEPOSIT **d1_pp,
   DEPOSIT **d2_pp,
-  int *head_p
+  long int *head_p
 )
 {
-  int count = 0;
+  long int count = 0;
 
   if(!*done_p) {
     if(man_board_status[place][EMPTY+MAN_OFSET] == IS_THERE) {
@@ -622,7 +622,7 @@ static int add_is_not_these_men_but_empty(
 
 #define ADD_IS_NOT_THESE_MEN_BUT_EMPTY(UPD,DP,PLACE,MAN1,MAN2,D1_PP,D2_PP) \
 { 									   \
-  int d = add_is_not_these_men_but_empty(UPD, 				   \
+  long int d = add_is_not_these_men_but_empty(UPD, 				   \
 					 DP, 				   \
 					 PLACE, 			   \
 					 MAN1, 				   \
@@ -634,15 +634,15 @@ static int add_is_not_these_men_but_empty(
   if(head_p) head_p += d; 						   \
 }
 
-static int step_one_unthreat(
-  int dr,
-  int dc,
-  int man,
+static long int step_one_unthreat(
+  long int dr,
+  long int dc,
+  long int man,
   DEPOSIT **dep_pp,
-  int *head_p
+  long int *head_p
 )
 {
-  int count = 0;
+  long int count = 0;
 
   if(0 <= dr && dr <= 7 && 0 <= dc && dc <= 7) {
     ADD_IS_NOT_MAN(1,Q(dr,dc),man,dep_pp);
@@ -653,21 +653,21 @@ static int step_one_unthreat(
 
 #define STEP_ONE_UNTHREAT(DR,DC,MAN,DEP) 	   \
 { 						   \
-  int d = step_one_unthreat(DR,DC,MAN,DEP,head_p); \
+  long int d = step_one_unthreat(DR,DC,MAN,DEP,head_p); \
   count += d; 					   \
   if(head_p) head_p += d; 			   \
 }
 
-static int step_two_unthreat(
-  int dr,
-  int dc,
-  int man1,
-  int man2,
+static long int step_two_unthreat(
+  long int dr,
+  long int dc,
+  long int man1,
+  long int man2,
   DEPOSIT **dep_pp,
-  int *head_p
+  long int *head_p
 )
 {
-  int count = 0;
+  long int count = 0;
 
   if(0 <= dr && dr <= 7 && 0 <= dc && dc <= 7) {
     ADD_IS_NOT_THESE_MEN(1,Q(dr,dc),man1,man2,dep_pp);
@@ -678,30 +678,30 @@ static int step_two_unthreat(
 
 #define STEP_TWO_UNTHREAT(DR,DC,MAN1,MAN2,DEP) 		 \
 { 							 \
-  int d = step_two_unthreat(DR,DC,MAN1,MAN2,DEP,head_p); \
+  long int d = step_two_unthreat(DR,DC,MAN1,MAN2,DEP,head_p); \
   count += d; 						 \
   if(head_p) head_p += d; 				 \
 }
 
-static int b_unthreat(
-  int r,
-  int c,
+static long int b_unthreat(
+  long int r,
+  long int c,
   DEPOSIT **dep_pp,
-  int *head_p
+  long int *head_p
 )
 {
-  int count = 0;
+  long int count = 0;
   DEPOSIT *short_coalease_p = NULL;
-  int *start_head_p = head_p;
-  int i;
+  long int *start_head_p = head_p;
+  long int i;
 
   for(i = 0; i < 8; i++) {
-    int *vp = ray_board[Q(r,c)][i];
+    long int *vp = ray_board[Q(r,c)][i];
 
     if(vp[0]) {
-      int *pp;
-      int first = 1;
-      int done = 0;
+      long int *pp;
+      long int first = 1;
+      long int done = 0;
 
       for(pp = vp; *pp; pp++);
       for(pp--; pp != vp && !done; pp--) {
@@ -762,30 +762,30 @@ static int b_unthreat(
 
 #define B_UNTHREAT(R,C,DEP) 	      \
 { 				      \
-  int d = b_unthreat(R,C,DEP,head_p); \
+  long int d = b_unthreat(R,C,DEP,head_p); \
   count += d; 			      \
   if(head_p) head_p += d; 	      \
 }
 
-static int w_unthreat(
-  int r,
-  int c,
+static long int w_unthreat(
+  long int r,
+  long int c,
   DEPOSIT **dep_pp,
-  int *head_p
+  long int *head_p
 )
 {
-  int count = 0;
+  long int count = 0;
   DEPOSIT *short_coalease_p = NULL;
-  int *start_head_p = head_p;
-  int i;
+  long int *start_head_p = head_p;
+  long int i;
 
   for(i = 0; i < 8; i++) {
-    int *vp = ray_board[Q(r,c)][i];
+    long int *vp = ray_board[Q(r,c)][i];
 
     if(vp[0]) {
-      int *pp;
-      int first = 1;
-      int done = 0;
+      long int *pp;
+      long int first = 1;
+      long int done = 0;
 
       for(pp = vp; *pp; pp++);
       for(pp--; pp != vp && !done; pp--) {
@@ -846,23 +846,23 @@ static int w_unthreat(
 
 #define W_UNTHREAT(R,C,DEP) 	      \
 { 				      \
-  int d = w_unthreat(R,C,DEP,head_p); \
+  long int d = w_unthreat(R,C,DEP,head_p); \
   count += d; 			      \
   if(head_p) head_p += d; 	      \
 }
 
-static int action_for(
-  int row,
-  int column,
-  int man,
-  int *head_p,
+static long int action_for(
+  long int row,
+  long int column,
+  long int man,
+  long int *head_p,
   DEPOSIT **dep_pp,
-  int pending_jumps
+  long int pending_jumps
 )
 {
   DEPOSIT *coalease_p = NULL;
   DEPOSIT *short_coalease_p = NULL;
-  int count = 0;
+  long int count = 0;
 
   if(pending_jumps) {
     S(OP_JUMP);
@@ -1190,15 +1190,15 @@ static int action_for(
   return count;
 }
 
-static int init_pice_pathes(
-  int *head_p
+static long int init_pice_pathes(
+  long int *head_p
 )
 {
-  int count = 0;
-  int for_white,row,column,lp_man;
-  int *vector_p;
+  long int count = 0;
+  long int for_white,row,column,lp_man;
+  long int *vector_p;
   DEPOSIT *dep_p = NULL;
-  int pending_jumps;
+  long int pending_jumps;
 
   for(for_white = 0; for_white < 2; for_white++) {
     actions[for_white] = head_p;
@@ -1218,19 +1218,19 @@ static int init_pice_pathes(
 
 	pending_jumps = 0;
 	for(lp_man = WHITE_VIRGIN_KING; lp_man > EMPTY; lp_man--) {
-	  int man = (for_white ? lp_man : -lp_man);
-	  int *start_head_p = head_p;
-	  int d = action_for(row,column,man,head_p,&dep_p,pending_jumps);
+	  long int man = (for_white ? lp_man : -lp_man);
+	  long int *start_head_p = head_p;
+	  long int d = action_for(row,column,man,head_p,&dep_p,pending_jumps);
 
 	  if(d > 2) { /* skip lonely jump */
 	    if(head_p) head_p += d;
 	    count += d;
 	    if(start_head_p) {
 	      if(pending_jumps) {
-		vector_p[man] = (int) (start_head_p + 2);
+		vector_p[man] = (long int) (start_head_p + 2);
 		defer_address(&dep_p, start_head_p + 1);
 	      } else {
-		vector_p[man] = (int) start_head_p;
+		vector_p[man] = (long int) start_head_p;
 	      }
 	    }
 	    
@@ -1276,17 +1276,17 @@ static int init_pice_pathes(
      6
 */
 
-static int create_one_ray(
-  int dr,
-  int dc,
-  int row,
-  int column,
-  int *head_p
+static long int create_one_ray(
+  long int dr,
+  long int dc,
+  long int row,
+  long int column,
+  long int *head_p
 )
 {
-  int count = 0;
-  int r = row;
-  int c = column;
+  long int count = 0;
+  long int r = row;
+  long int c = column;
 
   while(0 <= r && r <= 7 && 0 <= c && c <= 7) {
     r += dr;
@@ -1307,7 +1307,7 @@ static int create_one_ray(
 
 #define CREATE_ONE_RAY(R,DR,DC) 	       \
 { 					       \
-  int d; 				       \
+  long int d; 				       \
   R = head_p; 				       \
   d = create_one_ray(DR,DC,row,column,head_p); \
   count += d; 				       \
@@ -1315,14 +1315,14 @@ static int create_one_ray(
 }
 
 
-static int create_star_rays(
-  int row,
-  int column,
-  int *head_p,
-  int *rb[8]
+static long int create_star_rays(
+  long int row,
+  long int column,
+  long int *head_p,
+  long int *rb[8]
 )
 {
-  int count = 0;
+  long int count = 0;
 
   CREATE_ONE_RAY(rb[0], 0, 1);
   CREATE_ONE_RAY(rb[1], 1, 1);
@@ -1336,17 +1336,17 @@ static int create_star_rays(
   return count;
 }
 
-static int init_rays(
-  int *head_p
+static long int init_rays(
+  long int *head_p
 )
 {
-  int count = 0;
-  int row,column;
+  long int count = 0;
+  long int row,column;
 
   S(0);
   for(row = 0; row < 8; row++) {
     for(column = 0; column < 8; column++) {
-      int d = create_star_rays(row,column,head_p,ray_board[Q(row,column)]);
+      long int d = create_star_rays(row,column,head_p,ray_board[Q(row,column)]);
       if(head_p) head_p += d;
       count += d;
     }
@@ -1357,20 +1357,20 @@ static int init_rays(
 
 void init_moves()
 {
-  int *ray_ptr;
-  int *op_ptr;
-  int count;
+  long int *ray_ptr;
+  long int *op_ptr;
+  long int count;
 #ifdef vms
-  int *addr[2];
-  int sys$lkwset(int **,int **,int);
+  long int *addr[2];
+  long int sys$lkwset(long int **,long int **,long int);
 #endif
 
   count  = init_rays(NULL);
-  ray_ptr = (int *) malloc(count*sizeof(int));
+  ray_ptr = (long int *) malloc(count*sizeof(long int));
   init_rays(ray_ptr);
 
   count = init_pice_pathes(NULL);
-  op_ptr = (int *) malloc(count*sizeof(int));
+  op_ptr = (long int *) malloc(count*sizeof(long int));
 
 #ifdef vms
   addr[0] = &op_ptr[0];
@@ -1388,12 +1388,12 @@ void init_moves()
 
 #ifdef STANDALONE
 
-int number_of_errors = 0;
-int from = -1;
-int to = -1;
+long int number_of_errors = 0;
+long int from = -1;
+long int to = -1;
 
 static void local_board_convert(
-  int place
+  long int place
 )
 {
   if(!board_convert(place)) number_of_errors++;
@@ -1401,7 +1401,7 @@ static void local_board_convert(
 }
 
 static void local_move_convert(
-  int move
+  long int move
 )
 {
   if(!move_convert(move)) number_of_errors++;
@@ -1417,7 +1417,7 @@ static void local_move_convert(
 }
 
 static void local_man_convert(
-  int man
+  long int man
 )
 {
   if(!man_convert(man)) {
@@ -1428,23 +1428,23 @@ static void local_man_convert(
   printf(" ");
 }
 
-static int push_destination(
+static long int push_destination(
   DEPOSIT **dep_pp,
-  int place,
-  int *next_label_p
+  long int place,
+  long int *next_label_p
 )
 {
   if(*dep_pp == NULL ||
-     (unsigned int) place < (unsigned int) (*dep_pp)->place_p)
+     (unsigned long int) place < (unsigned long int) (*dep_pp)->place_p)
   {
     DEPOSIT *new_dep_p = (DEPOSIT *) malloc(sizeof(DEPOSIT));
 
-    new_dep_p->place_p = (int *) place;
+    new_dep_p->place_p = (long int *) place;
     new_dep_p->label = (*next_label_p)++;
     new_dep_p->next_p = (*dep_pp);
     *dep_pp = new_dep_p;
 
-  } else if((int *) place != (*dep_pp)->place_p) {
+  } else if((long int *) place != (*dep_pp)->place_p) {
     return push_destination(&(*dep_pp)->next_p,place,next_label_p);
   }
 
@@ -1453,12 +1453,12 @@ static int push_destination(
 }
 
 static void print_label(
-  int *action_p,
+  long int *action_p,
   DEPOSIT **dep_pp
 )
 {
   if(*dep_pp == NULL ||
-     (unsigned int) (*dep_pp)->place_p > (unsigned int) action_p)
+     (unsigned long int) (*dep_pp)->place_p > (unsigned long int) action_p)
   {
     printf("          ");
 
@@ -1480,10 +1480,10 @@ static void print_label(
 }
 
 static void decompile(
-  int *action_p
+  long int *action_p
 )
 {
-  int label = 0;
+  long int label = 0;
   DEPOSIT *dep_p = NULL;
 
   while(1) {
@@ -1500,7 +1500,7 @@ static void decompile(
   | OP |<-/
 */
     case OP_JUMP:
-      printf("jump ->%d\n",push_destination(&dep_p,*action_p++,&label));
+      printf("jump ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -1526,7 +1526,7 @@ static void decompile(
   | OP |<-/
 */
     case OP_JUMP_SET:
-      printf("jump_set ->%d\n",push_destination(&dep_p,*action_p++,&label));
+      printf("jump_set ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -1536,7 +1536,7 @@ static void decompile(
   | OP |<-/
 */
     case OP_JUMP_CLEAR:
-      printf("jump_clear ->%d\n",push_destination(&dep_p,*action_p++,&label));
+      printf("jump_clear ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -1550,7 +1550,7 @@ static void decompile(
   | OP |<------/
 */
     case OP_READ_MAN: {
-      int man;
+      long int man;
 
       printf("READ ");
       local_board_convert(*action_p++);
@@ -1560,7 +1560,7 @@ static void decompile(
       for(man = BLACK_VIRGIN_KING; man <= WHITE_VIRGIN_KING; man++) {
 	printf("          ");
 	local_man_convert(man);
-	printf(": ->%d\n",push_destination(&dep_p,*action_p++,&label));
+	printf(": ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       }
       printf("          ");
       printf("}\n");
@@ -1797,7 +1797,7 @@ static void decompile(
       local_board_convert(*action_p++);
       printf(" (");
       local_move_convert(*action_p++);
-      printf(") ->%d\n",push_destination(&dep_p,*action_p++,&label));
+      printf(") ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -1815,7 +1815,7 @@ static void decompile(
       local_board_convert(*action_p++);
       printf(" (");
       local_move_convert(*action_p++);
-      printf(") ->%d\n",push_destination(&dep_p,*action_p++,&label));
+      printf(") ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -1833,7 +1833,7 @@ static void decompile(
       local_board_convert(*action_p++);
       printf(" (");
       local_move_convert(*action_p++);
-      printf(") ->%d\n",push_destination(&dep_p,*action_p++,&label));
+      printf(") ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -1851,7 +1851,7 @@ static void decompile(
       local_board_convert(*action_p++);
       printf(" (");
       local_move_convert(*action_p++);
-      printf(") ->%d\n",push_destination(&dep_p,*action_p++,&label));
+      printf(") ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -1869,7 +1869,7 @@ static void decompile(
       local_board_convert(*action_p++);
       printf(" (");
       local_move_convert(*action_p++);
-      printf(") ->%d\n",push_destination(&dep_p,*action_p++,&label));
+      printf(") ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -1887,7 +1887,7 @@ static void decompile(
       local_board_convert(*action_p++);
       printf(" (");
       local_move_convert(*action_p++);
-      printf(") ->%d\n",push_destination(&dep_p,*action_p++,&label));
+      printf(") ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -1932,7 +1932,7 @@ static void decompile(
       local_board_convert(*action_p++);
       printf(" [");
       local_man_convert(*action_p++);
-      printf("] ->%d\n",push_destination(&dep_p,*action_p++,&label));
+      printf("] ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -1952,7 +1952,7 @@ static void decompile(
       local_man_convert(*action_p++);
       printf(",");
       local_man_convert(*action_p++);
-      printf("] ->%d\n",push_destination(&dep_p,*action_p++,&label));
+      printf("] ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -1971,8 +1971,8 @@ static void decompile(
       local_board_convert(*action_p++);
       printf(" [");
       local_man_convert(*action_p++);
-      printf("] ->(%d,",push_destination(&dep_p,*action_p++,&label));
-      printf("%d)\n",push_destination(&dep_p,*action_p++,&label));
+      printf("] ->(%ld,",push_destination(&dep_p,*action_p++,&label));
+      printf("%ld)\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -1994,8 +1994,8 @@ static void decompile(
       local_man_convert(*action_p++);
       printf(",");
       local_man_convert(*action_p++);
-      printf("] ->(%d,",push_destination(&dep_p,*action_p++,&label));
-      printf("%d)\n",push_destination(&dep_p,*action_p++,&label));
+      printf("] ->(%ld,",push_destination(&dep_p,*action_p++,&label));
+      printf("%ld)\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
 /*
@@ -2012,11 +2012,11 @@ static void decompile(
       local_board_convert(*action_p++);
       printf(" [");
       local_man_convert(*action_p++);
-      printf("] ->%d\n",push_destination(&dep_p,*action_p++,&label));
+      printf("] ->%ld\n",push_destination(&dep_p,*action_p++,&label));
       break;
 
     default:
-      printf("Strange OP code %d\n",action_p[-1]);
+      printf("Strange OP code %ld\n",action_p[-1]);
       number_of_errors++;
     }
   }
@@ -2033,7 +2033,7 @@ main()
   decompile(actions[0]);
 
   if(number_of_errors) {
-    printf("number_of_errors: %d\n",number_of_errors);
+    printf("number_of_errors: %ld\n",number_of_errors);
   } else {
     printf("No errors detected\n");
   }

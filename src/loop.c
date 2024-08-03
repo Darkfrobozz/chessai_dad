@@ -6,28 +6,28 @@
 
 #include "chess.h"
 
-static void update_princ(int,int);
-static int alpha_body(int,int,int,int,int *);
-static int beta_body(int,int,int,int,int *);
-static void alpha_descend(int,int,int);
-static void beta_descend(int,int,int);
-static void first_alpha_descend(int,int);
-static void first_beta_descend(int,int);
+static void update_princ(long int,long int);
+static long int alpha_body(long int,long int,long int,long int,long int *);
+static long int beta_body(long int,long int,long int,long int,long int *);
+static void alpha_descend(long int,long int,long int);
+static void beta_descend(long int,long int,long int);
+static void first_alpha_descend(long int,long int);
+static void first_beta_descend(long int,long int);
 
-static int pc[MAX_PLY][MAX_PLY];
-static int more;
+static long int pc[MAX_PLY][MAX_PLY];
+static long int more;
 
-static int timeout_vector[4];
-static int timeout_level;
-static int timeout_delta[4];
+static long int timeout_vector[4];
+static long int timeout_level;
+static long int timeout_delta[4];
 
-static int start_material_balance;
+static long int start_material_balance;
 
 void ttupdate(
-  int depth_precision,
-  int value,
-  int move,
-  int growth
+  long int depth_precision,
+  long int value,
+  long int move,
+  long int growth
 )
 {
   if(sit_p->tt_p->checkpoint < sit_p->save.checkpoint_level
@@ -48,7 +48,7 @@ static void timeout_white(
   int parameter
 )
 {
-  int delta_score_0 = accepted_score - start_material_balance;
+  long int delta_score_0 = accepted_score - start_material_balance;
 
   timeout_delta[timeout_level] = delta_score_0;
 
@@ -90,7 +90,7 @@ static void timeout_black(
   int parameter
 )
 {
-  int delta_score_0 = accepted_score - start_material_balance;
+  long int delta_score_0 = accepted_score - start_material_balance;
 
   timeout_delta[timeout_level] = delta_score_0;
 
@@ -139,13 +139,13 @@ void timeout_unlimited()
 }
 
 void timeout_alter(
-  int playing_white,
-  int remaining_time,
-  int remaining_moves,
-  int used_time
+  long int playing_white,
+  long int remaining_time,
+  long int remaining_moves,
+  long int used_time
 )
 {
-  int i;
+  long int i;
 
   /* Make certain to not drop out */
   if(remaining_time < 3) {
@@ -179,7 +179,7 @@ void timeout_alter(
   }
 
   if(timeout_level) {
-    int j = 3;
+    long int j = 3;
 
     for(i = 3; i >= 0; i--) {
       if(timeout_vector[i] > 0) {
@@ -202,14 +202,14 @@ void timeout_alter(
 }
 
 void loop(
-  int playing_white,
-  int last_move
+  long int playing_white,
+  long int last_move
 )
 {
   SITUATION *start_sit_p;
-  int dmax;
-  int i;
-  int start_dmax;
+  long int dmax;
+  long int i;
+  long int start_dmax;
 
   start_material_balance = sit_p->save.material_balance;
   printf("Beginning material %4.1f\n",
@@ -255,15 +255,15 @@ void loop(
   sit_p = start_sit_p;
   sit_p->score_0 = accepted_score;
 
-  printf("Timeout level %d\n",timeout_level);
+  printf("Timeout level %ld\n",timeout_level);
 }
 
 static void update_princ(
-  int ply,
-  int move
+  long int ply,
+  long int move
 )
 {
-  register int j;
+  register long int j;
 
   pc[ply][ply] = move;
   for(j = ply + 1; pc[ply][j] = pc[ply+1][j]; j++);
@@ -272,13 +272,13 @@ static void update_princ(
     accepted_score = sit_p->score_0;
 
     if(accepted_score < -2*(VALUE_WHITE_KING) + MAX_PLY) {
-      printf("  BM(%d) ",accepted_score + 2*(VALUE_WHITE_KING));
+      printf("  BM(%ld) ",accepted_score + 2*(VALUE_WHITE_KING));
 
     } else if(accepted_score < -(VALUE_WHITE_KING)/2) {
       printf("  BM(?) ");
 
     } else if(accepted_score > -2*(VALUE_BLACK_KING) - MAX_PLY) {
-      printf("  WM(%d) ",-(accepted_score + 2*(VALUE_BLACK_KING)));
+      printf("  WM(%ld) ",-(accepted_score + 2*(VALUE_BLACK_KING)));
 
     } else if(accepted_score > -(VALUE_BLACK_KING)/2) {
       printf("  WM(?) ");
@@ -298,15 +298,15 @@ static void update_princ(
   }
 }
 
-static int alpha_body(
-  int ply,
-  int dmax,
-  int move,
-  int last_move,
-  int *pat_possible_p
+static long int alpha_body(
+  long int ply,
+  long int dmax,
+  long int move,
+  long int last_move,
+  long int *pat_possible_p
 )
 {
-  int pre_material_balance = sit_p->save.material_balance;
+  long int pre_material_balance = sit_p->save.material_balance;
 
   switch(do_move(move,ply)) {
   case 1:
@@ -375,15 +375,15 @@ static int alpha_body(
   return 1;
 }
 
-static int beta_body(
-  int ply,
-  int dmax,
-  int move,
-  int last_move,
-  int *pat_possible_p
+static long int beta_body(
+  long int ply,
+  long int dmax,
+  long int move,
+  long int last_move,
+  long int *pat_possible_p
 )
 {
-  int pre_material_balance = sit_p->save.material_balance;
+  long int pre_material_balance = sit_p->save.material_balance;
 
   switch(do_move(move,ply)) {
   case 1:
@@ -452,16 +452,16 @@ static int beta_body(
 }
 
 static void first_alpha_descend(
-  int dmax,
-  int last_move
+  long int dmax,
+  long int last_move
 )
 {
-  int *mp;
-  int *vp;
-  int killer_score,gm_score;
-  int pat_possible = 1;
-  int gm_move = (sit_p->tt_p->key == sit_p->ttkey ? sit_p->tt_p->move : 0);
-  int killer_move = butterfly_board[GET_BUTTERFLY(last_move)];
+  long int *mp;
+  long int *vp;
+  long int killer_score,gm_score;
+  long int pat_possible = 1;
+  long int gm_move = (sit_p->tt_p->key == sit_p->ttkey ? sit_p->tt_p->move : 0);
+  long int killer_move = butterfly_board[GET_BUTTERFLY(last_move)];
 
   sit_p->score_0 = *sit_p->score_2_p;
     
@@ -504,16 +504,16 @@ static void first_alpha_descend(
 }
 
 static void first_beta_descend(
-  int dmax,
-  int last_move
+  long int dmax,
+  long int last_move
 )
 {
-  int *mp;
-  int *vp;
-  int killer_score,gm_score;
-  int pat_possible = 1;
-  int gm_move = (sit_p->tt_p->key == sit_p->ttkey ? sit_p->tt_p->move : 0);
-  int killer_move = butterfly_board[GET_BUTTERFLY(last_move)];
+  long int *mp;
+  long int *vp;
+  long int killer_score,gm_score;
+  long int pat_possible = 1;
+  long int gm_move = (sit_p->tt_p->key == sit_p->ttkey ? sit_p->tt_p->move : 0);
+  long int killer_move = butterfly_board[GET_BUTTERFLY(last_move)];
 
   sit_p->score_0 = *sit_p->score_2_p;
 
@@ -556,16 +556,16 @@ static void first_beta_descend(
 }
 
 static void alpha_descend(
-  int ply,
-  int dmax,
-  int last_move
+  long int ply,
+  long int dmax,
+  long int last_move
 )
 {
   if(ply < dmax) {
-    int *mp;
-    int pat_possible = 1;
-    int gm_move = (sit_p->tt_p->key == sit_p->ttkey ? sit_p->tt_p->move : 0);
-    int killer_move = butterfly_board[GET_BUTTERFLY(last_move)];
+    long int *mp;
+    long int pat_possible = 1;
+    long int gm_move = (sit_p->tt_p->key == sit_p->ttkey ? sit_p->tt_p->move : 0);
+    long int killer_move = butterfly_board[GET_BUTTERFLY(last_move)];
 
     sit_p->score_0 = *sit_p->score_2_p;
 
@@ -605,16 +605,16 @@ static void alpha_descend(
 }
 
 static void beta_descend(
-  int ply,
-  int dmax,
-  int last_move
+  long int ply,
+  long int dmax,
+  long int last_move
 )
 {
   if(ply < dmax) {
-    int *mp;
-    int pat_possible = 1;
-    int gm_move = (sit_p->tt_p->key == sit_p->ttkey ? sit_p->tt_p->move : 0);
-    int killer_move = butterfly_board[GET_BUTTERFLY(last_move)];
+    long int *mp;
+    long int pat_possible = 1;
+    long int gm_move = (sit_p->tt_p->key == sit_p->ttkey ? sit_p->tt_p->move : 0);
+    long int killer_move = butterfly_board[GET_BUTTERFLY(last_move)];
 
     sit_p->score_0 = *sit_p->score_2_p;
 

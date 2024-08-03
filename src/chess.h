@@ -200,47 +200,47 @@
 #define COLUMN_DELTA           (Q(0,1) - Q(0,0))
 
 typedef struct TTENTRY {
-  unsigned int key;
-  int value;
-  unsigned int checkpoint;
-  unsigned int move;
-  unsigned int depth_precision;
+  unsigned long int key;
+  long int value;
+  unsigned long int checkpoint;
+  unsigned long int move;
+  unsigned long int depth_precision;
 } TTENTRY;
 
 extern TTENTRY TT[TTSIZE];
 
 typedef struct PENTRY {
-  unsigned int key;
-  int value;
+  unsigned long int key;
+  long int value;
 } PENTRY;
 
 extern PENTRY P[PSIZE];
 
 typedef struct SITUATION {
   struct {
-    int board[8*8];
-    int black_king_place;
-    int white_king_place;
-    int material_balance;
-    int bonus;
-    int enpassant;
-    int checkpoint;
-    int checkpoint_level;
-    unsigned int ttkey_root;
-    unsigned int pkey_root;
-    unsigned int phash;
-    unsigned int tthash;
+    long int board[8*8];
+    long int black_king_place;
+    long int white_king_place;
+    long int material_balance;
+    long int bonus;
+    long int enpassant;
+    long int checkpoint;
+    long int checkpoint_level;
+    unsigned long int ttkey_root;
+    unsigned long int pkey_root;
+    unsigned long int phash;
+    unsigned long int tthash;
   } save,
    *last_save_p;            /* Never change once set */
   struct SITUATION *last_p; /*           .-          */
   struct SITUATION *next_p; /*           .-          */
-  int *score_2_p; 	    /*           .-          */
-  int *score_1_p; 	    /*           .-          */
-  int score_0;
-  int moves[MAX_MOVES];
-  int scores[MAX_MOVES];
-  unsigned int ttkey;
-  unsigned int pkey;
+  long int *score_2_p; 	    /*           .-          */
+  long int *score_1_p; 	    /*           .-          */
+  long int score_0;
+  long int moves[MAX_MOVES];
+  long int scores[MAX_MOVES];
+  unsigned long int ttkey;
+  unsigned long int pkey;
   TTENTRY *tt_p;
   PENTRY *p_p;
 } SITUATION;
@@ -248,113 +248,113 @@ typedef struct SITUATION {
 extern SITUATION sit[MAX_PLY];
 extern SITUATION *sit_p;
 
-extern int accepted_pc[MAX_PLY];
-extern int accepted_score;
+extern long int accepted_pc[MAX_PLY];
+extern long int accepted_score;
 
-extern int number_of_evals;
+extern long int number_of_evals;
 
-extern int have_message;
-extern int message_checked;
+extern long int have_message;
+extern long int message_checked;
 
-extern int butterfly_board[GET_BUTTERFLY(~0)];
+extern long int butterfly_board[GET_BUTTERFLY(~0)];
 
-extern unsigned int const hash[WHITE_VIRGIN_KING+MAN_OFSET+1][8*8];
+extern unsigned long int const hash[WHITE_VIRGIN_KING+MAN_OFSET+1][8*8];
 
 /* from actions.c */
 void init_moves();
 
 /* from generate.c */
 void generate_moves(
-  int for_white
+  long int for_white
 );
 
 /* from legal.c */
-int is_legal_move(
-  int for_white,
-  int move
+long int is_legal_move(
+  long int for_white,
+  long int move
 );
 
 /* from move.c */
-int do_move(
-  int themove,
-  int ply
+long int do_move(
+  long int themove,
+  long int ply
 );
 
 /* from tools.c */
-int cannot_strike_at(
-  int for_white,
-  int place
+long int cannot_strike_at(
+  long int for_white,
+  long int place
 );
 void init_tools();
 int board_convert(
-  int place
+ int  place
 );
-int move_convert(
-  int move
+long int move_convert(
+  long int move
 );
-int man_value(
-  int man
+long int man_value(
+  long int man
 );
 void set_board_dependencies(
-  int for_white,
-  int optional_enpassant
+  long int for_white,
+  long int optional_enpassant
 );
-int man_convert(
-  int man
+long int man_convert(
+  long int man
 );
 void dump_board(
-  int playing_white
+  long int playing_white
 );
-int move_is_available(
-  int themove
+long int move_is_available(
+  long int themove
 );
-int candidate_move(
-  int themove
+long int candidate_move(
+  long int themove
 );
 char *convert_binary_move_to_ascii(
-  int themove
+  long int themove
 );
-int convert_ascii_to_binary_move(
+long int convert_ascii_to_binary_move(
   char *move_s
 );
-int get_move();
+long int get_move();
 void set_board();
 void display_moves();
 void sort_for_white();
 void sort_for_black();
 void load_board(
-  int *playing_white_p
+  long int *playing_white_p
 );
 
 /* from eval.c */
-int eval(
-  int for_white,
-  int cut_off
+long int eval(
+  long int for_white,
+  long int cut_off
 );
 
 /* from loop.c */
 void ttupdate(
-  int depth_precision,
-  int value,
-  int move,
-  int growth
+  long int depth_precision,
+  long int value,
+  long int move,
+  long int growth
 );
 void timeout_abort();
 void timeout_unlimited();
 void timeout_alter(
-  int playing_white,
-  int remaining_time,
-  int remaining_moves,
-  int used_time
+  long int playing_white,
+  long int remaining_time,
+  long int remaining_moves,
+  long int used_time
 );
 void loop(
-  int playing_white,
-  int last_move
+  long int playing_white,
+  long int last_move
 );
 
 /* from strike.c */
-int strike(
-  int for_white
+long int strike(
+  long int for_white
 );
 
 /* from chess.c */

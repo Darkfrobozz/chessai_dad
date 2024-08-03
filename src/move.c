@@ -4,7 +4,7 @@
 
 #include "chess.h"
 
-unsigned int const hash[WHITE_VIRGIN_KING+MAN_OFSET+1][8*8]
+unsigned long int const hash[WHITE_VIRGIN_KING+MAN_OFSET+1][8*8]
 #include "hash.h"
 ;
 
@@ -13,15 +13,15 @@ unsigned int const hash[WHITE_VIRGIN_KING+MAN_OFSET+1][8*8]
 #define PUPDATE(_F,_F_MAN,_T,_T_MAN) \
   sit_p->save.phash ^= hash[_F_MAN+MAN_OFSET][_F] ^ hash[_T_MAN+MAN_OFSET][_T]
 
-int do_move(
-  int themove,
-  int ply
+long int do_move(
+  long int themove,
+  long int ply
 )
 {
-  int from = GET_FROM(themove);
-  int to = GET_TO(themove);
-  int man;
-  int taken;
+  long int from = GET_FROM(themove);
+  long int to = GET_TO(themove);
+  long int man;
+  long int taken;
 
   sit_push();
 
@@ -374,7 +374,7 @@ int do_move(
     return 0;
 
   default:
-    printf("Strange man (%d) moving\n",man);
+    printf("Strange man (%ld) moving\n",man);
     set_hash();
     return 0;
   }
@@ -583,7 +583,7 @@ int do_move(
     return 1;
 
   default:
-    printf("Strange man (%d) taken\n",man);
+    printf("Strange man (%ld) taken\n",man);
     set_hash();
     return 0;
   }
@@ -593,7 +593,7 @@ int do_move(
 
 main()
 {
-  int playing_white;
+  long int playing_white;
   init_tools();
   init_moves();
 
@@ -605,8 +605,8 @@ main()
   generate_moves(playing_white);
 
   while(1) {
-    int *mp;
-    int themove = get_move();
+    long int *mp;
+    long int themove = get_move();
 
     for(mp = sit_p->moves; *mp && *mp != themove; mp++);
 

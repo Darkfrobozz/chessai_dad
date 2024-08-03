@@ -12,13 +12,13 @@ PENTRY P[PSIZE];
 SITUATION sit[MAX_PLY];
 SITUATION *sit_p;
 
-int butterfly_board[GET_BUTTERFLY(~0)];
-int good_move[TTSIZE];
+long int butterfly_board[GET_BUTTERFLY(~0)];
+long int good_move[TTSIZE];
 
 static void dump_hash()
 {
-  unsigned int null_hash[8*8];
-  int pice;
+  unsigned long int null_hash[8*8];
+  long int pice;
 
   memset(null_hash,0,sizeof null_hash);
 
@@ -41,7 +41,7 @@ static void dump_hash()
       for(r = 7; r >= 0; r--) {
 	printf("%c |",r+'1');
 	for(c = 0; c < 8; c++) {
-	  int place = Q(r,c);
+	  long int place = Q(r,c);
 	  if(hash[pice+MAN_OFSET][place] == 0ul) {
 	    printf("  ");
 	  } else {
@@ -60,17 +60,17 @@ static void dump_hash()
 	printf("%c   ",c+'a');
       }
       printf("\n");
-      {char dummy[100]; gets(dummy); }
+      {char dummy[100]; fgets(dummy,sizeof(dummy),stdin); }
     }
   }
 }
 
-int cannot_strike_at(
-  int for_white,
-  int place
+long int cannot_strike_at(
+  long int for_white,
+  long int place
 )
 {
-  int *mp;
+  long int *mp;
 
   sit_push();
   generate_moves(for_white);
@@ -123,11 +123,11 @@ int board_convert(
   }
 }
 
-int move_convert(
-  int move
+long int move_convert(
+  long int move
 )
 {
-  int status = 1;
+  long int status = 1;
 
   if(!board_convert(GET_FROM(move))) status = 0;
   if(!board_convert(GET_TO(move))) status = 0;
@@ -151,8 +151,8 @@ int move_convert(
   return status;
 }
 
-int man_value(
-  int man
+long int man_value(
+  long int man
 )
 {
   switch(man) {
@@ -177,14 +177,14 @@ int man_value(
 }
 
 void set_board_dependencies(
-  int for_white,
-  int optional_enpassant
+  long int for_white,
+  long int optional_enpassant
 )
 {
-  int nopices;
-  int nopawns;
-  int nopawnsteps;
-  int place;
+  long int nopices;
+  long int nopawns;
+  long int nopawnsteps;
+  long int place;
 
   sit_p->save.material_balance = 0;
 
@@ -212,7 +212,7 @@ void set_board_dependencies(
   nopices = 0;
   nopawnsteps = 0;
   for(place = 0; place < 8*8; place++) {
-    int man = sit_p->save.board[place];
+    long int man = sit_p->save.board[place];
 
     sit_p->save.material_balance += man_value(man);
 
@@ -270,8 +270,8 @@ void set_board_dependencies(
   *sit_p->score_2_p = sit_p->score_0;
 }
 
-int man_convert(
-  int man
+long int man_convert(
+  long int man
 )
 {
   switch(man) {
@@ -301,7 +301,7 @@ int man_convert(
 }
 
 void dump_board(
-  int playing_white
+  long int playing_white
 )
 {
   int r,c;
@@ -322,7 +322,7 @@ void dump_board(
       printf("%c |",r+'1');
     }
     for(c = 0; c < 8; c++) {
-      int place = Q(r,c);
+      long int place = Q(r,c);
       if(IS_EMPTY(sit_p->save.board[place])) {
 	if(place == sit_p->save.enpassant) {
 	  printf(" :");
@@ -347,26 +347,26 @@ void dump_board(
   printf("\n");
 }
 
-int move_is_available(
-  int themove
+long int move_is_available(
+  long int themove
 )
 {
-  int *mp;
+  long int *mp;
 
   for(mp = sit_p->moves; *mp && *mp != themove; mp++);
 
   return *mp;
 }
 
-int candidate_move(
-  int themove
+long int candidate_move(
+  long int themove
 )
 {
   if(GET_SPECIAL(themove)) {
     return move_is_available(themove);
 
   } else {
-    int *mp;
+    long int *mp;
 
     for(mp = sit_p->moves;
 	*mp && MAKE_MOVE(GET_FROM(*mp),GET_TO(*mp)) != themove;
@@ -377,7 +377,7 @@ int candidate_move(
 }
 
 char *convert_binary_move_to_ascii(
-  int themove
+  long int themove
 )
 {
   static char move_s[6];
@@ -401,11 +401,11 @@ char *convert_binary_move_to_ascii(
   return move_s;
 }
 
-int convert_ascii_to_binary_move(
+long int convert_ascii_to_binary_move(
   char *move_s
 )
 {
-  int themove;
+  long int themove;
   char *f,*t;
 
   t = move_s;
@@ -460,18 +460,17 @@ int convert_ascii_to_binary_move(
   }
 }
 
-int get_move()
+long int get_move()
 {
   char buffer[100];
 
-  printf("Move> "); gets(buffer);
-
+  printf("Move> "); fgets(buffer,sizeof(buffer),stdin);
   return convert_ascii_to_binary_move(buffer);
 }
 
 void set_board()
 {
-  int c;
+  long int c;
 
   sit_p->save.board[A1] = WHITE_VIRGIN_ROOK;
   sit_p->save.board[B1] = WHITE_KNIGHT;
@@ -505,13 +504,13 @@ void set_board()
 
 void display_moves()
 {
-  int online = 0;
-  int *mp = sit_p->moves;
-  int *vp = sit_p->scores;
+  long int online = 0;
+  long int *mp = sit_p->moves;
+  long int *vp = sit_p->scores;
 
   while(*mp) {
     move_convert(*mp++);
-    printf(" (%d) ",*vp++);
+    printf(" (%ld) ",*vp++);
     online++;
     if(online > 80/13) {
       online = 0;
@@ -525,13 +524,13 @@ void display_moves()
 
 void sort_for_white()
 {
-  register int father;
-  register int *scores = &sit_p->scores[-1];
-  register int trailer;
-  register int *moves = &sit_p->moves[-1];
-  register int thescore;
-  register int vacant;
-  register int themove;
+  register long int father;
+  register long int *scores = &sit_p->scores[-1];
+  register long int trailer;
+  register long int *moves = &sit_p->moves[-1];
+  register long int thescore;
+  register long int vacant;
+  register long int themove;
 
   vacant = 1;
 
@@ -560,13 +559,13 @@ void sort_for_white()
 
 void sort_for_black()
 {
-  register int father;
-  register int *scores = &sit_p->scores[-1];
-  register int trailer;
-  register int *moves = &sit_p->moves[-1];
-  register int thescore;
-  register int vacant;
-  register int themove;
+  register long int father;
+  register long int *scores = &sit_p->scores[-1];
+  register long int trailer;
+  register long int *moves = &sit_p->moves[-1];
+  register long int thescore;
+  register long int vacant;
+  register long int themove;
 
   vacant = 1;
 
@@ -594,13 +593,13 @@ void sort_for_black()
 }
 
 void load_board(
-  int *playing_white_p
+  long int *playing_white_p
 )
 {
-  int playing_white;
-  int row;
-  int load_cnt;
-  int row_load[8];
+  long int playing_white;
+  long int row;
+  long int load_cnt;
+  long int row_load[8];
 
   printf("Give chess board>\n");
 
@@ -617,14 +616,14 @@ void load_board(
     char buff[80],*bp;
 
     buff[0] = 0;
-    if(!fgets(buff,80,stdin)) {
+    if(!fgets(buff,sizeof(buff),stdin)) {
       sit_pop();
       return;
     }
 
     bp = buff;
     if('1' <= *bp && *bp <= '8') {
-      int column;
+      long int column;
 
       row = (*bp++) - '1';
       if(!row_load[row]) load_cnt++;
@@ -636,9 +635,9 @@ void load_board(
 
       for(column = 0; column < 8; column++) {
 	char man_ch;
-	int man;
-	int place;
-	int is_black;
+	long int man;
+	long int place;
+	long int is_black;
 
 	place = Q(row,column);
 
@@ -693,8 +692,8 @@ void load_board(
 
 main()
 {
-  long int t;
-  int i;
+  long long int t;
+  long int i;
 
   init_tools();
   init_moves();

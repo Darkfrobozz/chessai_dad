@@ -4,8 +4,8 @@
 
 static void eval_pawn_structure()
 {
-  int *place;
-  int balance,row,column,blacks,whites;
+  long int *place;
+  long int balance,row,column,blacks,whites;
 
   balance = 0;
   place = &sit_p->save.board[A1];
@@ -81,12 +81,12 @@ static void eval_pawn_structure()
   sit_p->p_p->key = sit_p->pkey;
 }
 
-int eval(
-  int for_white,
-  int cut_off
+long int eval(
+  long int for_white,
+  long int cut_off
 )
 {
-  register int value;
+  register long int value;
 
   number_of_evals++;
 

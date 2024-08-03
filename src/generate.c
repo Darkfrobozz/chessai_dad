@@ -9,10 +9,10 @@
 
 #define STORE_WHITE_MOVE(THEMOVE,THESCORE)     \
 { 					       \
-  int father; 				       \
-  int trailer; 				       \
-  int thescore = (THESCORE); 		       \
-  int themove = (THEMOVE); 		       \
+  long int father; 				       \
+  long int trailer; 				       \
+  long int thescore = (THESCORE); 		       \
+  long int themove = (THEMOVE); 		       \
  					       \
   trailer = vacant; 			       \
   father = trailer >> 1; 		       \
@@ -33,10 +33,10 @@
 
 #define STORE_BLACK_MOVE(THEMOVE,THESCORE)     \
 { 					       \
-  int father; 				       \
-  int trailer; 				       \
-  int thescore = (THESCORE); 		       \
-  int themove = (THEMOVE); 		       \
+  long int father; 				       \
+  long int trailer; 				       \
+  long int thescore = (THESCORE); 		       \
+  long int themove = (THEMOVE); 		       \
  					       \
   trailer = vacant; 			       \
   father = trailer >> 1; 		       \
@@ -56,17 +56,17 @@
 }
 
 void generate_moves(
-  int for_white
+  long int for_white
 )
 {
-  register int *action_p = actions[for_white];
-  int vacant;
-  int *moves = &sit_p->moves[-1];
-  int *scores = &sit_p->scores[-1];
-  register int *board_p = sit_p->save.board;
-  register int case_man;
-  int man;
-  int flag;
+  register long int *action_p = actions[for_white];
+  long int vacant;
+  long int *moves = &sit_p->moves[-1];
+  long int *scores = &sit_p->scores[-1];
+  register long int *board_p = sit_p->save.board;
+  register long int case_man;
+  long int man;
+  long int flag;
 
   vacant = 1;
 
@@ -99,7 +99,7 @@ void generate_moves(
   | OP |<-/
 */
     case OP_JUMP:
-      action_p = *(int **) action_p;
+      action_p = *(long int **) action_p;
       break;
 
 /*
@@ -126,7 +126,7 @@ void generate_moves(
 */
     case OP_JUMP_SET:
       if(flag) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
@@ -140,7 +140,7 @@ void generate_moves(
 */
     case OP_JUMP_CLEAR:
       if(!flag) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
@@ -158,7 +158,7 @@ void generate_moves(
 */
     case OP_READ_MAN:
       case_man = board_p[*action_p++];
-      action_p = (int *) action_p[case_man +MAN_OFSET];
+      action_p = (long int *) action_p[case_man +MAN_OFSET];
       break;
 
 /*
@@ -320,7 +320,7 @@ void generate_moves(
   | OP |
 */
     case OP_WHITE_ENPASSANT: {
-      int spot = *action_p++;
+      long int spot = *action_p++;
 
       man = board_p[spot];
 
@@ -342,7 +342,7 @@ void generate_moves(
   | OP |
 */
     case OP_BLACK_ENPASSANT: {
-      int spot = *action_p++;
+      long int spot = *action_p++;
 
       man = board_p[spot];
 
@@ -418,10 +418,10 @@ void generate_moves(
 	action_p++;
       } else if(IS_WHITE(man)) {
 	STORE_BLACK_MOVE(*action_p++,-man-case_man);
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       }
       break;
 
@@ -444,10 +444,10 @@ void generate_moves(
 	action_p++;
       } else if(IS_BLACK(man)) {
 	STORE_WHITE_MOVE(*action_p++,-man-case_man);
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       }
       break;
 
@@ -496,7 +496,7 @@ void generate_moves(
       man = board_p[*action_p++];
 
       if(man == *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
@@ -517,9 +517,9 @@ void generate_moves(
 
       if(man == *action_p++) {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else if(man == *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
@@ -540,10 +540,10 @@ void generate_moves(
       man = board_p[*action_p++];
 
       if(man == *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else if(man != EMPTY) {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p += 2;
       }
@@ -566,12 +566,12 @@ void generate_moves(
 
       if(man == *action_p++) {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else if(man == *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else if(man != EMPTY) {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p += 2;
       }
@@ -590,14 +590,14 @@ void generate_moves(
       man = board_p[*action_p++];
 
       if(man != *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
       break;
 
     default:
-      printf("generate.c : Strange OP code %d\n",action_p[-1]);
+      printf("generate.c : Strange OP code %ld\n",action_p[-1]);
     }
   }
 }

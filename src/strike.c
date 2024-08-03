@@ -8,21 +8,21 @@
 #include "actions.h"
 
 typedef struct SQUARE {
-  int first_move;
-  int queue[12];
-  int length;
+  long int first_move;
+  long int queue[12];
+  long int length;
 } SQUARE;
 
 static SQUARE black[8*8],white[8*8];
 
-int white_swap_off(int,int,int *,int,int *,int *);
-int black_swap_off(int,int,int *,int,int *,int *);
+long int white_swap_off(long int,long int,long int *,long int,long int *,long int *);
+long int black_swap_off(long int,long int,long int *,long int,long int *,long int *);
 
 #define WHITE_STRIKES_ON(_HITMAN,_SPOT,_MAN,_FIRST_MOVE) \
 {                                                        \
   register SQUARE *square = &white[_SPOT];               \
-  register int i;                                        \
-  register int first_move = _FIRST_MOVE;                 \
+  register long int i;                                        \
+  register long int first_move = _FIRST_MOVE;                 \
                                                          \
   if(xray_stop_p) {                                      \
     if(IS_BLACK(_MAN)) {                                 \
@@ -63,9 +63,9 @@ int black_swap_off(int,int,int *,int,int *,int *);
 
 #define BLACK_STRIKES_ON(_HITMAN,_SPOT,_MAN,_FIRST_MOVE) \
 {                                                        \
-  register int i;                                        \
+  register long int i;                                        \
   register SQUARE *square = &black[_SPOT];               \
-  register int first_move = _FIRST_MOVE;                 \
+  register long int first_move = _FIRST_MOVE;                 \
                                                          \
   if(xray_stop_p) {                                      \
     if(IS_BLACK(_MAN)) {                                 \
@@ -113,18 +113,18 @@ int black_swap_off(int,int,int *,int,int *,int *);
   }                                                      \
 }
 
-static int setup_strikes()
+static long int setup_strikes()
 {
-  register int *action_p;
-  register int *board_p = sit_p->save.board;
-  register int case_man;
-  int for_white;
-  int man;
-  int flag;
-  int spot;
-  int value = 0;
-  int *xray_stop_p;
-  int xray_steps;
+  register long int *action_p;
+  register long int *board_p = sit_p->save.board;
+  register long int case_man;
+  long int for_white;
+  long int man;
+  long int flag;
+  long int spot;
+  long int value = 0;
+  long int *xray_stop_p;
+  long int xray_steps;
 
   memset(white,0,sizeof white);
   memset(black,0,sizeof black);
@@ -163,7 +163,7 @@ static int setup_strikes()
   | OP |<-/
 */
     case OP_JUMP:
-      action_p = *(int **) action_p;
+      action_p = *(long int **) action_p;
       break;
 
 /*
@@ -190,7 +190,7 @@ static int setup_strikes()
 */
     case OP_JUMP_SET:
       if(flag) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
@@ -204,7 +204,7 @@ static int setup_strikes()
 */
     case OP_JUMP_CLEAR:
       if(!flag) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
@@ -223,7 +223,7 @@ static int setup_strikes()
     case OP_READ_MAN:
       spot = *action_p++;
       case_man = board_p[spot];
-      action_p = (int *) action_p[case_man +MAN_OFSET];
+      action_p = (long int *) action_p[case_man +MAN_OFSET];
       break;
 
 /*
@@ -507,11 +507,11 @@ static int setup_strikes()
 	   IS_WHITE_QUEEN(man)  && IS_BLACK_QUEEN(case_man))
 	{ /* Xraying trought cheaper only */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 
 	} else {
 	  action_p++;
-	  action_p = *(int **) action_p;
+	  action_p = *(long int **) action_p;
 	}
 
       } else {
@@ -519,18 +519,18 @@ static int setup_strikes()
 
 	if(IS_BLACK_PAWN(man)) { /* Xraying trought but only one step */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 	  if(!xray_steps) xray_steps = 2;
 
 	} else if(IS_BLACK_BISHOP(man) ||
 	          IS_BLACK_QUEEN(man)  && IS_BLACK_QUEEN(case_man))
 	{ /* Xraying trought cheaper only */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 
 	} else {
 	  action_p++;
-	  action_p = *(int **) action_p;
+	  action_p = *(long int **) action_p;
 	}
       }
       break;
@@ -558,18 +558,18 @@ static int setup_strikes()
 
 	if(IS_WHITE_PAWN(man)) { /* Xraying trought but only one step */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 	  if(!xray_steps) xray_steps = 2;
 
 	} else if(IS_WHITE_BISHOP(man) ||
 	          IS_WHITE_QUEEN(man)  && IS_BLACK_QUEEN(case_man))
 	{ /* Xraying trought cheaper only */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 
 	} else {
 	  action_p++;
-	  action_p = *(int **) action_p;
+	  action_p = *(long int **) action_p;
 	}
 
       } else {
@@ -579,11 +579,11 @@ static int setup_strikes()
 	   IS_BLACK_QUEEN(man)  && IS_BLACK_QUEEN(case_man))
 	{ /* Xraying trought cheaper only */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 
 	} else {
 	  action_p++;
-	  action_p = *(int **) action_p;
+	  action_p = *(long int **) action_p;
 	}
       }
       break;
@@ -613,11 +613,11 @@ static int setup_strikes()
 	   IS_WHITE_QUEEN(man) && IS_BLACK_QUEEN(case_man))
 	{ /* Xraying trought cheaper only */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 
 	} else {
 	  action_p++;
-	  action_p = *(int **) action_p;
+	  action_p = *(long int **) action_p;
 	}
 
       } else {
@@ -627,11 +627,11 @@ static int setup_strikes()
 	   IS_BLACK_QUEEN(man) && IS_BLACK_QUEEN(case_man))
 	{ /* Xraying trought cheaper only */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 
 	} else {
 	  action_p++;
-	  action_p = *(int **) action_p;
+	  action_p = *(long int **) action_p;
 	}
       }
       break;
@@ -661,11 +661,11 @@ static int setup_strikes()
 	   IS_BLACK_QUEEN(man)  && IS_WHITE_QUEEN(case_man))
 	{ /* Xraying trought cheaper only */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 
 	} else {
 	  action_p++;
-	  action_p = *(int **) action_p;
+	  action_p = *(long int **) action_p;
 	}
 
       } else {
@@ -673,18 +673,18 @@ static int setup_strikes()
 
 	if(IS_WHITE_PAWN(man)) { /* Xraying trought but only one step */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 	  if(!xray_steps) xray_steps = 2;
 
 	} else if(IS_WHITE_BISHOP(man) ||
 	          IS_WHITE_QUEEN(man)  && IS_WHITE_QUEEN(case_man))
 	{ /* Xraying trought cheaper only */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 
 	} else {
 	  action_p++;
-	  action_p = *(int **) action_p;
+	  action_p = *(long int **) action_p;
 	}
       }
       break;
@@ -712,18 +712,18 @@ static int setup_strikes()
 
 	if(IS_BLACK_PAWN(man)) { /* Xraying trought but only one step */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 	  if(!xray_steps) xray_steps = 2;
 
 	} else if(IS_BLACK_BISHOP(man) ||
 		  IS_BLACK_QUEEN(man)  && IS_WHITE_QUEEN(case_man))
 	{ /* Xraying trought cheaper only */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 
 	} else {
 	  action_p++;
-	  action_p = *(int **) action_p;
+	  action_p = *(long int **) action_p;
 	}
 
       } else {
@@ -733,11 +733,11 @@ static int setup_strikes()
 	   IS_WHITE_QUEEN(man)  && IS_WHITE_QUEEN(case_man))
 	{ /* Xraying trought cheaper only */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 
 	} else {
 	  action_p++;
-	  action_p = *(int **) action_p;
+	  action_p = *(long int **) action_p;
 	}
       }
       break;
@@ -767,11 +767,11 @@ static int setup_strikes()
 	   IS_BLACK_QUEEN(man) && IS_WHITE_QUEEN(case_man))
 	{ /* Xraying trought cheaper only */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 
 	} else {
 	  action_p++;
-	  action_p = *(int **) action_p;
+	  action_p = *(long int **) action_p;
 	}
 
       } else {
@@ -781,11 +781,11 @@ static int setup_strikes()
 	   IS_WHITE_QUEEN(man) && IS_WHITE_QUEEN(case_man))
 	{ /* Xraying trought cheaper only */
 	  action_p++;
-	  xray_stop_p = *(int **) action_p++;
+	  xray_stop_p = *(long int **) action_p++;
 
 	} else {
 	  action_p++;
-	  action_p = *(int **) action_p;
+	  action_p = *(long int **) action_p;
 	}
       }
       break;
@@ -845,7 +845,7 @@ static int setup_strikes()
       man = board_p[*action_p++];
 
       if(man == *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
@@ -866,9 +866,9 @@ static int setup_strikes()
 
       if(man == *action_p++) {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else if(man == *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
@@ -889,10 +889,10 @@ static int setup_strikes()
       man = board_p[*action_p++];
 
       if(man == *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else if(man != EMPTY) {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p += 2;
       }
@@ -915,12 +915,12 @@ static int setup_strikes()
 
       if(man == *action_p++) {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else if(man == *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else if(man != EMPTY) {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p += 2;
       }
@@ -939,25 +939,25 @@ static int setup_strikes()
       man = board_p[*action_p++];
 
       if(man != *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
       break;
 
     default:
-      printf("strike.c : Strange OP code %d\n",action_p[-1]);
+      printf("strike.c : Strange OP code %ld\n",action_p[-1]);
     }
   }
 }
 
-int black_swap_off(
-  int stake,
-  int black_men_left,
-  int *black_queue,
-  int white_men_left,
-  int *white_queue,
-  int *depth_p
+long int black_swap_off(
+  long int stake,
+  long int black_men_left,
+  long int *black_queue,
+  long int white_men_left,
+  long int *white_queue,
+  long int *depth_p
 )
 {
   if(black_men_left) {
@@ -966,7 +966,7 @@ int black_swap_off(
       return VALUE_WHITE_KING*2/VALUE_WHITE_PAWN;
 
     } else {
-      int gain = stake + white_swap_off(*black_queue,
+      long int gain = stake + white_swap_off(*black_queue,
 					black_men_left-1,
 					black_queue+1,
 					white_men_left,
@@ -983,13 +983,13 @@ int black_swap_off(
   return 0;
 }
 
-int white_swap_off(
-  int stake,
-  int black_men_left,
-  int *black_queue,
-  int white_men_left,
-  int *white_queue,
-  int *depth_p
+long int white_swap_off(
+  long int stake,
+  long int black_men_left,
+  long int *black_queue,
+  long int white_men_left,
+  long int *white_queue,
+  long int *depth_p
 )
 {
   if(white_men_left) {
@@ -998,7 +998,7 @@ int white_swap_off(
       return VALUE_BLACK_KING*2/VALUE_WHITE_PAWN;
 
     } else {
-      int gain = stake + black_swap_off(*white_queue,
+      long int gain = stake + black_swap_off(*white_queue,
 					black_men_left,
 					black_queue,
 					white_men_left-1,
@@ -1015,17 +1015,17 @@ int white_swap_off(
   return 0;
 }
 
-int strike(
-  int for_white
+long int strike(
+  long int for_white
 )
 {
-  register int place;
-  register int man;
-  int gain_depth;
-  int value = setup_strikes();
-  int max_gain = 0;
-  int first_move = 0;
-  int gain,depth;
+  register long int place;
+  register long int man;
+  long int gain_depth;
+  long int value = setup_strikes();
+  long int max_gain = 0;
+  long int first_move = 0;
+  long int gain,depth;
 
   if(for_white) {
     for(place = 0; place < 8*8; place++) {

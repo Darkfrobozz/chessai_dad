@@ -2,25 +2,29 @@
 
 #include <stdio.h>
 #include <signal.h>
+#include <string.h>
+#include <time.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include "chess.h"
 
 static char guessed[7];
 static char command[80];
 
-static int playing_white;
-static int remaining_time;
-static int remaining_moves;
-static int try_this_move;
-static int used_time;
+static long int playing_white;
+static long int remaining_time;
+static long int remaining_moves;
+static long int try_this_move;
+static long int used_time;
 
-int accepted_pc[MAX_PLY];
-int accepted_score;
+long int accepted_pc[MAX_PLY];
+long int accepted_score;
 
-int number_of_evals;
+long int number_of_evals;
 
-int have_message;
-int message_checked;
+long int have_message;
+long int message_checked;
 
 static void update_func()
 {
@@ -38,7 +42,7 @@ void check_message()
 #ifdef ACTION
   chess_client_get_move(command, &remaining_time, &remaining_moves);
 #else
-  printf("Your move> "); gets(command);
+  printf("Your move> "); fgets(command, sizeof(command), stdin);
 #endif
 
   command[79] = 0;
@@ -80,10 +84,10 @@ static void ctrl_c()
 }
 #endif
 
-main()
+long int main(long int n, char *v[])
 {
-  int opponet_move;
-  int my_move;
+  long int opponet_move;
+  long int my_move;
 
   have_message = 0;
   message_checked = 0;
@@ -104,19 +108,16 @@ main()
 #endif
 
   while(1) {
-    /* if(!try_this_move) {
-    /   while(have_message <= message_checked) sleep(1);
-    / }
+    if(!try_this_move) {
+      while(have_message <= message_checked) sleep(1);
+    }
 
-    / if(have_message > message_checked) check_message();
+    if(have_message > message_checked) check_message();
 
-    / printf("opponent move: %s, %d/%d [sec/move]\n",
-	  / command, remaining_time, remaining_moves);
+    printf("opponent move: %s, %ld/%ld [sec/move]\n",
+	   command, remaining_time, remaining_moves);
 
-    / !strcmp("white",command)
-    */
-
-    if(0) {
+    if(!strcmp("white",command)) {
       init_tools();
       set_board();
 
@@ -124,7 +125,7 @@ main()
       opponet_move = 0;
       try_this_move = 0;
 
-    } else if(1) {
+    } else if(!strcmp("black",command)) {
       init_tools();
       set_board();
 
@@ -262,7 +263,7 @@ main()
 
     sit_p->save.checkpoint_level = sit_p->save.checkpoint;
 
-    printf("Time %d, evals %d (%0.2f /sec)\n",
+    printf("Time %ld, evals %ld (%0.2f /sec)\n",
 	   used_time,number_of_evals,
 	   (1.0*number_of_evals)/(used_time > 0 ? used_time : 1));
 
@@ -289,7 +290,7 @@ main()
       try_this_move = accepted_pc[1];
 
       if(try_this_move) {
-	int i;
+	long int i;
 
 	for(i = 0; accepted_pc[i] = accepted_pc[i+2]; i++);
 	for(; i < MAX_PLY; i++) accepted_pc[i] = 0;
@@ -302,7 +303,7 @@ main()
       }
 
       if(try_this_move) {
-	int t;
+	long int t;
 
 	switch(do_move(try_this_move,0)) {
 	case 1:

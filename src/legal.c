@@ -7,16 +7,16 @@
 #include "chess.h"
 #include "actions.h"
 
-int is_legal_move(
-  int for_white,
-  int move
+long int is_legal_move(
+  long int for_white,
+  long int move
 )
 {
-  register int *action_p;
-  register int *board_p;
-  register int case_man;
-  int man;
-  int flag;
+  register long int *action_p;
+  register long int *board_p;
+  register long int case_man;
+  long int man;
+  long int flag;
 
   /* Skip OP_READ_MAN */
   action_p = spot_action[for_white][GET_FROM(move)] + 1;
@@ -24,7 +24,7 @@ int is_legal_move(
   board_p = sit_p->save.board;
 
   case_man = board_p[*action_p++];
-  action_p = (int *) action_p[case_man + MAN_OFSET];
+  action_p = (long int *) action_p[case_man + MAN_OFSET];
 
   while(1) {
     switch(*action_p++) {
@@ -38,7 +38,7 @@ int is_legal_move(
   | OP |<-/
 */
     case OP_JUMP:
-      action_p = *(int **) action_p;
+      action_p = *(long int **) action_p;
       break;
 
 /*
@@ -65,7 +65,7 @@ int is_legal_move(
 */
     case OP_JUMP_SET:
       if(flag) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
@@ -79,7 +79,7 @@ int is_legal_move(
 */
     case OP_JUMP_CLEAR:
       if(!flag) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
@@ -257,7 +257,7 @@ int is_legal_move(
   | OP |
 */
     case OP_WHITE_ENPASSANT: {
-      int spot = *action_p++;
+      long int spot = *action_p++;
 
       man = board_p[spot];
 
@@ -279,7 +279,7 @@ int is_legal_move(
   | OP |
 */
     case OP_BLACK_ENPASSANT: {
-      int spot = *action_p++;
+      long int spot = *action_p++;
 
       man = board_p[spot];
 
@@ -355,10 +355,10 @@ int is_legal_move(
 	action_p++;
       } else if(IS_WHITE(man)) {
 	if(move == *action_p++) return 1;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       }
       break;
 
@@ -381,10 +381,10 @@ int is_legal_move(
 	action_p++;
       } else if(IS_BLACK(man)) {
 	if(move == *action_p++) return 1;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       }
       break;
 
@@ -433,7 +433,7 @@ int is_legal_move(
       man = board_p[*action_p++];
 
       if(man == *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
@@ -454,9 +454,9 @@ int is_legal_move(
 
       if(man == *action_p++) {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else if(man == *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
@@ -477,10 +477,10 @@ int is_legal_move(
       man = board_p[*action_p++];
 
       if(man == *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else if(man != EMPTY) {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p += 2;
       }
@@ -503,12 +503,12 @@ int is_legal_move(
 
       if(man == *action_p++) {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else if(man == *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else if(man != EMPTY) {
 	action_p++;
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p += 2;
       }
@@ -527,14 +527,14 @@ int is_legal_move(
       man = board_p[*action_p++];
 
       if(man != *action_p++) {
-	action_p = *(int **) action_p;
+	action_p = *(long int **) action_p;
       } else {
 	action_p++;
       }
       break;
 
     default:
-      printf("legal.c : Strange OP code %d\n",action_p[-1]);
+      printf("legal.c : Strange OP code %ld\n",action_p[-1]);
     }
   }  
 }

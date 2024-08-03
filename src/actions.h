@@ -36,7 +36,7 @@
 #define OP_IS_NOT_THESE_MEN_BUT_EMPTY 30
 #define OP_IS_MAN 		      31
 
-extern int *actions[2];
-extern int *spot_action[2][8*8];
+extern long int *actions[2];
+extern long int *spot_action[2][8*8];
 
 #endif /* #ifndef ACTIONS_H */
