@@ -8,9 +8,9 @@
 #include <unistd.h>
 
 #include "chess.h"
+#include "client.h"
 
 static char guessed[7];
-static char command[80];
 
 static long int playing_white;
 static long int remaining_time;
@@ -40,7 +40,7 @@ void check_message()
   message_checked++;
 
 #ifdef ACTION
-  chess_client_get_move(command, &remaining_time, &remaining_moves);
+//  chess_client_get_move(command, &remaining_time, &remaining_moves);
 #else
   printf("Your move> "); fgets(command, sizeof(command), stdin);
 #endif
@@ -84,7 +84,7 @@ static void ctrl_c()
 }
 #endif
 
-long int main(long int n, char *v[])
+int main(int n, char *v[])
 {
   long int opponet_move;
   long int my_move;
@@ -102,16 +102,27 @@ long int main(long int n, char *v[])
   init_moves();
 
 #ifdef ACTION
-  chess_client_init("Frobozz", update_func);
+  chess_client_init();
 #else 
   signal(SIGINT,ctrl_c);
 #endif
 
   while(1) {
+
+    // Listen for color
     if(!try_this_move) {
-      while(have_message <= message_checked) sleep(1);
+      while(have_message <= 0) {
+        #ifdef ACTION
+        if (client_listen() > 0) {
+          check_message();
+          break;
+        }
+        #endif
+        sleep(1);
+      }
     }
 
+    // Checking message?
     if(have_message > message_checked) check_message();
 
     printf("opponent move: %s, %ld/%ld [sec/move]\n",
